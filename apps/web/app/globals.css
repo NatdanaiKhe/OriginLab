@@ -1,0 +1,60 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme {
+  /* Brand color tokens from DESIGN.md */
+  --color-paper: var(--paper);
+  --color-paper-soft: var(--paper-soft);
+  --color-paper-deep: var(--paper-deep);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-leaf: var(--leaf);
+  --color-roast: var(--roast);
+
+  /* Semantic UI mappings */
+  --color-background: var(--paper);
+  --color-foreground: var(--ink);
+  --color-border: var(--ink);
+
+  /* Typography */
+  --font-heading: var(--font-fraunces), serif;
+  --font-body: var(--font-inter), sans-serif;
+
+  /* Shadows and radii per DESIGN.md */
+  --shadow-flat: 4px 4px 0px 0px var(--ink);
+  --radius-card: 16px;
+  --radius-default: 12px;
+  --radius-pill: 999px;
+}
+
+:root {
+  /* Core brand palette */
+  --paper: #e0dfda;
+  --paper-soft: #ecebe6;
+  --paper-deep: #d3d2cc;
+  --ink: #1c1c1b;
+  --ink-soft: #4a4947;
+  --ink-faint: #8a8985;
+
+  /* Accents */
+  --leaf: #4f5d3a;
+  --roast: #8b5a3c;
+}
+
+@layer base {
+  body {
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    color: var(--ink);
+    line-height: 1.1;
+  }
+}

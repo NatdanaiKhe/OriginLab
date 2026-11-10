@@ -1,0 +1,42 @@
+version: "3"
+
+output: prefixed
+
+tasks:
+  dev:
+    desc: Run web and api together
+    deps: [api, web]
+
+  api:
+    desc: Run Go API
+    dir: apps/api
+    cmds:
+      - go run ./cmd/api
+
+  web:
+    desc: Run Next.js
+    dir: apps/web
+    cmds:
+      - yarn dev
+
+  test:
+    desc: Run Go tests
+    dir: apps/api
+    cmds:
+      - go test ./...
+
+  build:
+    desc: Build both apps
+    cmds:
+      - task: build-api
+      - task: build-web
+
+  build-api:
+    dir: apps/api
+    cmds:
+      - go build -o bin/api ./cmd/api
+
+  build-web:
+    dir: apps/web
+    cmds:
+      - yarn build
