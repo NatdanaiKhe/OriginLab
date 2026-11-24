@@ -1,0 +1,65 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: originlab-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: originlab
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: originlab
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U originlab"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./apps/api
+      target: dev
+    container_name: originlab-api-dev
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: "8080"
+      APP_ENV: development
+      DATABASE_URL: postgres://originlab:password@postgres:5432/originlab?sslmode=disable
+    volumes:
+      # Mount full source for hot reload (air watches it)
+      - ./apps/api:/app
+      # Isolate the Go module cache inside the container
+      - go_mod_cache:/root/go/pkg/mod
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ./apps/web
+      target: dev
+    container_name: originlab-web-dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: http://localhost:8080
+    volumes:
+      # Mount full source for HMR
+      - ./apps/web:/app
+      # Keep node_modules from the image — do NOT let the host overwrite it
+      - /app/node_modules
+      # Persist Next.js build cache between restarts
+      - next_cache:/app/.next
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
+  go_mod_cache:
+  next_cache:
