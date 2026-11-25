@@ -40,3 +40,15 @@ tasks:
     dir: apps/web
     cmds:
       - yarn build
+
+  migrate-up:
+    desc: Run database migrations
+    dir: apps/api
+    cmds:
+      - goose -dir migrations postgres "user=originlab password=password dbname=originlab sslmode=disable" up
+
+  migrate-down:
+    desc: Rollback database migrations
+    dir: apps/api
+    cmds:
+      - goose -dir migrations postgres "user=originlab password=password dbname=originlab sslmode=disable" down
