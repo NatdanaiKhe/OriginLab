@@ -1,5 +1,22 @@
+# Dependencies
 node_modules/
+
+# Next.js
 .next/
+out/
+
+# Go / API
+apps/api/bin/
+apps/api/tmp/
+apps/api/build-errors.log
+*.test
+*.out
+
+# Environment
 .env*
 !.env.example
-apps/api/bin/
+
+# OS / Misc
+.DS_Store
+Thumbs.db
+*.log
