@@ -31,7 +31,7 @@ services:
       DATABASE_URL: postgres://originlab:password@postgres:5432/originlab?sslmode=disable
     volumes:
       # Mount full source for hot reload (air watches it)
-      - ./apps/api:/app
+      - ./apps/api:/app:Z
       # Isolate the Go module cache inside the container
       - go_mod_cache:/root/go/pkg/mod
     depends_on:
@@ -51,7 +51,7 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:8080
     volumes:
       # Mount full source for HMR
-      - ./apps/web:/app
+      - ./apps/web:/app:Z
       # Keep node_modules from the image — do NOT let the host overwrite it
       - /app/node_modules
       # Persist Next.js build cache between restarts
