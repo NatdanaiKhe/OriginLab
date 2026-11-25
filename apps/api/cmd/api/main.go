@@ -2,8 +2,8 @@ package main
 
 import (
 	"log"
-	"os"
 
+	"github.com/NatdaniKhe/OriginLab/apps/api/internal/platform/config"
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/healthcheck"
 	"github.com/gofiber/fiber/v3/middleware/logger"
@@ -14,6 +14,8 @@ func main() {
 	app := fiber.New(fiber.Config{
 		AppName: "OriginLab API (v3)",
 	})
+
+	config := config.LoadConfig()
 
 	// Global middlewares
 	app.Use(logger.New())
@@ -33,7 +35,7 @@ func main() {
 		})
 	})
 
-	// API v1 route group placeholder
+	// API v1 route group
 	api := app.Group("/api/v1")
 	api.Get("/health", func(c fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
@@ -41,10 +43,7 @@ func main() {
 		})
 	})
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
+	port := config.PORT
 
 	log.Printf("Starting OriginLab API on :%s", port)
 	if err := app.Listen(":" + port); err != nil {
