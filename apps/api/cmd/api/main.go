@@ -1,9 +1,12 @@
 package main
 
 import (
+	"context"
 	"log"
+	"time"
 
 	"github.com/NatdaniKhe/OriginLab/apps/api/internal/platform/config"
+	"github.com/NatdaniKhe/OriginLab/apps/api/internal/platform/database"
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/healthcheck"
 	"github.com/gofiber/fiber/v3/middleware/logger"
@@ -16,30 +19,37 @@ func main() {
 	})
 
 	config := config.LoadConfig()
+	ctx := context.Background()
 
 	// Global middlewares
 	app.Use(logger.New())
 	app.Use(recover.New())
 
-	// Built-in Fiber v3 cloud health check probes (/livez, /readyz, /startupz)
-	app.Get(healthcheck.LivenessEndpoint, healthcheck.New())
-	app.Get(healthcheck.ReadinessEndpoint, healthcheck.New())
-	app.Get(healthcheck.StartupEndpoint, healthcheck.New())
+	pool, err := database.NewPool(ctx, config.DatabaseConfig.DATABASE_URL)
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+	defer pool.Close()
 
-	// Application-level health endpoint
-	app.Get("/healthz", func(c fiber.Ctx) error {
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"status":  "ok",
-			"service": "originlab-api",
-			"fiber":   "v3",
-		})
-	})
+	app.Get(healthcheck.LivenessEndpoint, healthcheck.New())
 
 	// API v1 route group
 	api := app.Group("/api/v1")
 	api.Get("/health", func(c fiber.Ctx) error {
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"status": "healthy",
+		ctx, cancel := context.WithTimeout(c.Context(), 2*time.Second)
+		defer cancel()
+
+		if err := pool.Ping(ctx); err != nil {
+			log.Printf("health check: db ping failed: %v", err)
+			return c.Status(fiber.StatusServiceUnavailable).JSON(fiber.Map{
+				"status":   "degraded",
+				"database": "down",
+			})
+		}
+
+		return c.JSON(fiber.Map{
+			"status":   "healthy",
+			"database": "ok",
 		})
 	})
 
